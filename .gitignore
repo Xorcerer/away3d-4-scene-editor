@@ -12,3 +12,6 @@ bin-release/
 *.iml
 .idea
 out/
+
+# internal data
+res/scenes/

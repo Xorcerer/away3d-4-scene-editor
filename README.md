@@ -1,2 +1,2 @@
-away3d-4-scene-editor
+away3d-4-controllers-editor
 =====================
