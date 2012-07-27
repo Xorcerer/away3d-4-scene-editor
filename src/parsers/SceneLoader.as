@@ -7,6 +7,10 @@
  */
 package parsers
 {
+	import away3d.containers.View3D;
+	import away3d.events.LoaderEvent;
+	import away3d.loaders.Loader3D;
+
 	import controllers.ViewController;
 
 	import flash.events.Event;
@@ -18,16 +22,14 @@ package parsers
 	import utils.Log;
 	import utils.Res;
 
-	public class SceneLoader
+	public class SceneLoader extends View3D
 	{
 		private static const SCENES_DIR:String = 'scenes/';
 
 		private var _sceneName:String;
-		private var _viewController:ViewController;
 
-		public function SceneLoader(viewController:ViewController, sceneName:String)
+		public function SceneLoader(sceneName:String)
 		{
-			_viewController = viewController;
 			_sceneName = sceneName;
 		}
 
@@ -61,13 +63,32 @@ package parsers
 				var node:XML = meshNodes[i];
 				var meshName:String = node.@name;
 				var worldPosition:Vector3D = new Vector3D(node.pos.@x, node.pos.@y, node.pos.@z);
-				_viewController.loadMesh(getMeshFilename(meshName), worldPosition);
+				loadMesh(getMeshFilename(meshName), worldPosition);
 			}
+		}
+
+		public function loadMesh(name:String, worldPosition:Vector3D):void
+		{
+			var loader:Loader3D = new Loader3D();
+			loader.position = worldPosition;
+			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
+			loader.addEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
+			loader.load(new URLRequest(Res.getPath(name)), null,  null, new Max3DSParser());
 		}
 
 		private function onIOError(e:IOErrorEvent):void
 		{
 			Log.e(e.toString());
+		}
+
+		private function onResourceComplete(e:LoaderEvent):void
+		{
+			scene.addChild(e.currentTarget as Loader3D);
+		}
+
+		private function onLoadError(e:LoaderEvent):void
+		{
+			Log.e(e.message);
 		}
 	}
 }

@@ -14,6 +14,8 @@ package
 	import flash.net.URLRequest;
 	import flash.ui.Keyboard;
 
+	import parsers.DDSParser;
+
 	import parsers.SceneLoader;
 
 	import utils.Log;
@@ -22,32 +24,41 @@ package
 
 	public class Away3d4SceneEditor extends Sprite
 	{
-		private var _view:View3D;
-		private var _viewController:ViewController;
+		private var _sceneLoader:SceneLoader;
 
 		public function Away3d4SceneEditor()
 		{
-			Parsers.enableAllBundled();
+			globalInit();
 
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
-			_view = new View3D();
-			_view.backgroundColor = 0x666666;
-			_view.antiAlias = 4;
-			addChild(_view);
+			_sceneLoader = new SceneLoader('yewai1');
+			_sceneLoader.backgroundColor = 0x666666;
+			_sceneLoader.antiAlias = 4;
 
-			_viewController = new ViewController(_view);
-			_viewController.loadScene('yewai1');
+			// TODO: Added events to SceneLoader.
+			addChild(_sceneLoader);
+
+			_sceneLoader.load();
+		}
+
+		private static function globalInit():void
+		{
+			Parsers.enableAllBundled();
+			Loader3D.enableParser(DDSParser);
+
+			// FIXME: Cannot override default Max3DSParser.
+			// Loader3D.enableParser(parsers.Max3DSParser);
 		}
 
 		private function onEnterFrame(ev:Event):void
 		{
-			_view.camera.y = 3 * (stage.mouseY - stage.stageHeight / 2);
-			if (_view.scene.numChildren > 0)
-				_view.camera.lookAt(_view.scene.getChildAt(0).position);
+			_sceneLoader.camera.y = 3 * (stage.mouseY - stage.stageHeight / 2);
+			if (_sceneLoader.scene.numChildren > 0)
+				_sceneLoader.camera.lookAt(_sceneLoader.scene.getChildAt(0).position);
 
-			_view.render();
+			_sceneLoader.render();
 		}
 
 		private function onKeyDown(e:KeyboardEvent):void

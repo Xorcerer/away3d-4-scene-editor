@@ -14,6 +14,9 @@ package controllers
 	import flash.geom.Vector3D;
 	import flash.net.URLRequest;
 
+	import parsers.DDSParser;
+	import parsers.Max3DSParser;
+
 	import parsers.SceneLoader;
 
 	import utils.Log;
@@ -30,27 +33,8 @@ package controllers
 
 		public function loadScene(name:String):void
 		{
-			var sceneLoader:SceneLoader = new SceneLoader(this, name);
+			var sceneLoader:SceneLoader = new SceneLoader(name);
 			sceneLoader.load();
-		}
-
-		public function loadMesh(name:String, worldPosition:Vector3D):void
-		{
-			var loader:Loader3D = new Loader3D();
-			loader.position = worldPosition;
-			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
-			loader.addEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
-			loader.load(new URLRequest(Res.getPath(name)));
-		}
-
-		private function onResourceComplete(e:LoaderEvent):void
-		{
-			_view.scene.addChild(e.currentTarget as Loader3D);
-		}
-
-		private function onLoadError(e:LoaderEvent):void
-		{
-			Log.e(e.message);
 		}
 	}
 }
