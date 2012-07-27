@@ -27,9 +27,9 @@ package parsers
 			return true;
 		}
 
-		private static const DXT1:int = 1;
-		private static const DXT5:int = 2;
-		private var _dxtFormat:int;
+		private static const DXT1:uint = 0x31545844;
+		private static const DXT5:uint = 0x35545844;
+		private var _decompressFunc:Function;
 
 		private var _output:ByteArray;
 
@@ -41,7 +41,7 @@ package parsers
 		private var _width:int;
 		private var _height:int;
 		private var _depth:int;
-		private var _flags:int;
+		private var _flags2:int;
 		private var _fourCC:int;
 
 		public function get width():int
@@ -80,8 +80,6 @@ package parsers
 		{
 				input.position = 0;
 				input.endian = Endian.LITTLE_ENDIAN;
-				_output = new ByteArray;
-				_output.endian = Endian.LITTLE_ENDIAN;
 
 				// 读DDS头
 				readHeader(input);
@@ -89,17 +87,11 @@ package parsers
 				if (!checkHeader())
 					return null;
 
+				_output = new ByteArray;
+				_output.endian = Endian.LITTLE_ENDIAN;
 				_output.length = _width * _height * 4;
 
-				// 读像素
-				if (_dxtFormat == DXT1)
-					decompressDXT1(input);
-				else if (_dxtFormat == DXT5)
-					decompressDXT5(input);
-				else
-				{
-					return null;
-				}
+				_decompressFunc(input);
 
 			_output.position = 0;
 			return _output;
@@ -126,7 +118,7 @@ package parsers
 				input.readUnsignedInt();	// no used
 
 			input.readUnsignedInt();		// size2
-			_flags = input.readUnsignedInt();		// flags2
+			_flags2 = input.readUnsignedInt();		// flags2
 			_fourCC = input.readUnsignedInt();		// FourCC
 			input.readUnsignedInt();		// RGBBitCount
 			input.readUnsignedInt();		// RBitMask
@@ -153,17 +145,15 @@ package parsers
 			if (_width == 0 || _height == 0)
 				return false;
 
-			if (_flags != 4)
+			if (_flags2 != 4)
 				return false;
 
-			if (_fourCC == 0x31545844)    // DXT1
-				_dxtFormat = 1;
-			else if (_fourCC == 0x35545844)        // DXT5
-				_dxtFormat = 2;
+			if (_fourCC == DXT1)
+				_decompressFunc = decompressDXT1;
+			else if (_fourCC == DXT5)
+				_decompressFunc = decompressDXT5;
 			else
-			{
 				return false;
-			}
 
 			return true;
 		}
