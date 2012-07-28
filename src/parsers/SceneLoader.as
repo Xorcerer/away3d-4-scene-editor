@@ -11,12 +11,6 @@ package parsers
 	import away3d.events.LoaderEvent;
 	import away3d.loaders.Loader3D;
 
-	import controllers.ViewController;
-
-	import flash.events.Event;
-	import flash.events.IOErrorEvent;
-	import flash.geom.Vector3D;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 
 	import utils.Log;
@@ -26,68 +20,47 @@ package parsers
 	{
 		private static const SCENES_DIR:String = 'scenes/';
 
-		private var _sceneName:String;
-
-		public function SceneLoader(sceneName:String)
+		public function SceneLoader()
 		{
-			_sceneName = sceneName;
+			backgroundColor = 0x0;
+			antiAlias = 4;
 		}
 
-		public function load():void
-		{
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(IOErrorEvent.IO_ERROR, onIOError)
-			loader.addEventListener(Event.COMPLETE, onComplete);
-			loader.load(new URLRequest(Res.getPath(sceneFilename)));
-		}
-
-		private function get sceneFilename():String
-		{
-			return SCENES_DIR + _sceneName + '/map.xml';
-		}
-
-		private function getMeshFilename(name:String):String
-		{
-			return SCENES_DIR + _sceneName + '/' + name + '.3ds';
-		}
-
-		private function onComplete(e:Event):void
-		{
-			XML.ignoreComments = true;
-			XML.ignoreWhitespace = true;
-			var sceneXML:XML = new XML(e.target.data);
-
-			var meshNodes:XMLList = sceneXML.child('mesh');
-			for(var i:uint = 0; i < meshNodes.length(); ++i)
-			{
-				var node:XML = meshNodes[i];
-				var meshName:String = node.@name;
-				var worldPosition:Vector3D = new Vector3D(node.pos.@x, node.pos.@y, node.pos.@z);
-				loadMesh(getMeshFilename(meshName), worldPosition);
-			}
-		}
-
-		public function loadMesh(name:String, worldPosition:Vector3D):void
+		public function load(sceneName:String):void
 		{
 			var loader:Loader3D = new Loader3D();
-			loader.position = worldPosition;
-			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
-			loader.addEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
-			loader.load(new URLRequest(Res.getPath(name)), null,  null, new Max3DSParser());
+			addListeners(loader);
+
+			loader.load(new URLRequest(Res.getPath(getSceneFilename(sceneName))));
 		}
 
-		private function onIOError(e:IOErrorEvent):void
+		private static function getSceneFilename(sceneName:String):String
 		{
-			Log.e(e.toString());
+			return SCENES_DIR + sceneName + '/map.xml';
+		}
+
+		private function addListeners(loader:Loader3D):void
+		{
+			loader.addEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
+			loader.addEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
+		}
+
+		private function removeListeners(loader:Loader3D):void
+		{
+			loader.removeEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
+			loader.removeEventListener(LoaderEvent.RESOURCE_COMPLETE, onResourceComplete);
 		}
 
 		private function onResourceComplete(e:LoaderEvent):void
 		{
-			scene.addChild(e.currentTarget as Loader3D);
+			var loader:Loader3D = e.currentTarget as Loader3D;
+			removeListeners(loader);
+			scene.addChild(loader);
 		}
 
 		private function onLoadError(e:LoaderEvent):void
 		{
+			removeListeners(e.currentTarget as Loader3D);
 			Log.e(e.message);
 		}
 	}

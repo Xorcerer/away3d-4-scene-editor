@@ -9,6 +9,16 @@ package parsers
 	 */
 	public class Max3DSParser extends away3d.loaders.parsers.Max3DSParser
 	{
+		public static function supportsType(extension:String):Boolean
+		{
+			return away3d.loaders.parsers.Max3DSParser.supportsType(extension);
+		}
+
+		public static function supportsData(data : *) : Boolean
+		{
+			return away3d.loaders.parsers.Max3DSParser.supportsData(data);
+		}
+
 		private var _urlPrefixForTexture:String;
 
 		public function Max3DSParser(urlPrefixForTexture:String = null)
@@ -25,6 +35,7 @@ package parsers
 			}
 			super.addDependency(id, req, retrieveAsRawData, data, suppressErrorEvents);
 		}
+
 
 	}
 }

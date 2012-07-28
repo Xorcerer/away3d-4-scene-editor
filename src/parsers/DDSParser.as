@@ -24,7 +24,8 @@ package parsers
 
 		public static function supportsData(data:*):Boolean
 		{
-			return true;
+			// TODO:
+			return false;
 		}
 
 		private static const DXT1:uint = 0x31545844;
@@ -64,19 +65,20 @@ package parsers
 		{
 			if (decompressDDS(_data) == null)
 			{
-				// TODO: Log the texture name.
-				Log.e('Texture loading error.');
 				parsingFailure = true;
 				return PARSING_DONE;
 			}
+
 			var bmpData:BitmapData = new BitmapData(_width, _height, true, 0);
 			bmpData.setPixels(bmpData.rect, _output);
 			var texture:BitmapTexture = new BitmapTexture(bmpData);
+
 			finalizeAsset(texture);
+
 			return PARSING_DONE;
 		}
 
-		public function decompressDDS(input:ByteArray):ByteArray
+		private function decompressDDS(input:ByteArray):ByteArray
 		{
 				input.position = 0;
 				input.endian = Endian.LITTLE_ENDIAN;
@@ -181,8 +183,8 @@ package parsers
 						bitmask = input.readUnsignedInt();
 
 
-						DxtcReadColor(color_0, colours0);
-						DxtcReadColor(color_1, colours1);
+						DXT1ReadColor(color_0, colours0);
+						DXT1ReadColor(color_1, colours1);
 
 						if (color_0 > color_1)
 						{
@@ -225,11 +227,10 @@ package parsers
 								{
 									shiftMask = 0xffffffff
 								}
-								var Select:int = xxx & shiftMask;
-//								var Select:int = (bitmask & (0x03<<k*2)) >> k*2;
+								var select:int = xxx & shiftMask;
 
 								var colours:Vector.<int>;
-								switch (Select)
+								switch (select)
 								{
 									case 0:
 										colours = colours0;
@@ -256,8 +257,6 @@ package parsers
 									_output.writeByte(colours[1]);		// g
 									_output.writeByte(colours[0]);		// b
 									_output.writeByte(colours[3]);		// a
-//									Debug.bltrace(y+" "+x+" "+j+" "+i+" "+"Select="+Select+" "+colours[2]+" "+colours[1]+" "+colours[0]);
-
 								}
 								k++
 							} // for i
@@ -268,7 +267,7 @@ package parsers
 
 		}
 
-		private function DxtcReadColor(cClr:int, colours:Vector.<int>):void
+		private function DXT1ReadColor(cClr:int, colours:Vector.<int>):void
 		{
 			// r5 g6 b5
 			var b:int = cClr & 0x1f;
@@ -379,8 +378,6 @@ package parsers
 									_output.writeByte(colours[2]);		// r
 									_output.writeByte(colours[1]);		// g
 									_output.writeByte(colours[0]);		// b
-
-//									Debug.bltrace(x+" "+y+" "+i+" "+j+" "+"Select="+Select+" "+colours[2]+" "+colours[1]+" "+colours[0]);
 								}
 
 								k++;
@@ -417,7 +414,6 @@ package parsers
 									Offset = z * (_height * _width * 4) + (y + j) * (_width * 4) + (x + i) * 4 + 3;
 									_output.position = Offset;
 									_output.writeByte(alphas[bits & 0x07]);
-//									Debug.bltrace(x+" "+y+" "+i+" "+j+" "+(bits & 0x07));
 								}
 								bits >>= 3;
 							}
@@ -432,7 +428,6 @@ package parsers
 									Offset = z * (_height * _width * 4) + (y + j) * (_width * 4) + (x + i) * 4 + 3;
 									_output.position = Offset;
 									_output.writeByte(alphas[bits & 0x07]);
-//									Debug.bltrace(x+" "+y+" "+i+" "+j+" "+(bits & 0x07));
 								}
 								bits >>= 3;
 							}

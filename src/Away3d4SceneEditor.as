@@ -1,27 +1,20 @@
 package
 {
 
-	import away3d.containers.View3D;
-	import away3d.events.LoaderEvent;
 	import away3d.loaders.Loader3D;
-	import away3d.loaders.parsers.Parsers;
 
-	import controllers.ViewController;
+	import controllers.FreeCameraController;
 
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.KeyboardEvent;
-	import flash.net.URLRequest;
-	import flash.ui.Keyboard;
+
+	import parsers.Blade3DXMLParser;
 
 	import parsers.DDSParser;
-
+	import parsers.Max3DSParser;
 	import parsers.SceneLoader;
 
-	import utils.Log;
-
-	import utils.Res;
-
+	[SWF(width=800, height=600, backgroundColor=0x0)]
 	public class Away3d4SceneEditor extends Sprite
 	{
 		private var _sceneLoader:SceneLoader;
@@ -31,42 +24,33 @@ package
 			globalInit();
 
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 
-			_sceneLoader = new SceneLoader('yewai1');
-			_sceneLoader.backgroundColor = 0x666666;
-			_sceneLoader.antiAlias = 4;
-
-			// TODO: Added events to SceneLoader.
+			_sceneLoader = new SceneLoader();
 			addChild(_sceneLoader);
 
-			_sceneLoader.load();
+			stage.addEventListener(Event.RESIZE, onResize);
+			_sceneLoader.load('yewai1');
+
+			new FreeCameraController(_sceneLoader);
 		}
 
 		private static function globalInit():void
 		{
-			Parsers.enableAllBundled();
 			Loader3D.enableParser(DDSParser);
-
-			// FIXME: Cannot override default Max3DSParser.
-			// Loader3D.enableParser(parsers.Max3DSParser);
+			Loader3D.enableParser(Max3DSParser);
+			Loader3D.enableParser(Blade3DXMLParser);
 		}
 
-		private function onEnterFrame(ev:Event):void
+		private function onEnterFrame(e:Event):void
 		{
-			_sceneLoader.camera.y = 3 * (stage.mouseY - stage.stageHeight / 2);
-			if (_sceneLoader.scene.numChildren > 0)
-				_sceneLoader.camera.lookAt(_sceneLoader.scene.getChildAt(0).position);
-
 			_sceneLoader.render();
 		}
 
-		private function onKeyDown(e:KeyboardEvent):void
+		private function onResize(e:Event):void
 		{
-			if (e.keyCode == Keyboard.F)
-			{}
-			else if (e.keyCode == Keyboard.B)
-			{}
+			_sceneLoader.width = stage.stageWidth;
+			_sceneLoader.height = stage.stageHeight;
+
 		}
 	}
 }
