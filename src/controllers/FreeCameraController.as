@@ -7,32 +7,41 @@
  */
 package controllers
 {
+	import away3d.cameras.Camera3D;
 	import away3d.containers.View3D;
-	import away3d.events.LoaderEvent;
-	import away3d.loaders.Loader3D;
 
 	import flash.events.KeyboardEvent;
-
+	import flash.events.MouseEvent;
 	import flash.geom.Vector3D;
-	import flash.net.URLRequest;
 	import flash.ui.Keyboard;
+	import flash.ui.Mouse;
 
-	import parsers.DDSParser;
-	import parsers.Max3DSParser;
-
-	import parsers.SceneLoader;
-
-	import utils.Log;
-	import utils.Res;
-
-	public class FreeCameraController
+	public class FreeCameraController extends CameraControllerBase
 	{
-		private var _view:View3D;
 
 		public function FreeCameraController(view:View3D)
 		{
-			_view = view;
+			super(view);
+
 			_view.parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			_view.parent.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+		}
+
+		private function cameraMoveForword(step:Number):void
+		{
+			var v:Vector3D = camera.backVector.clone();
+			v.y = 0;
+			v.scaleBy(-step);
+			camera.position = camera.position.add(v);
+
+		}
+
+		private function cameraYaw(step:Number):void
+		{
+			const y:Number = camera.y;
+			camera.yaw(step);
+			camera.y = y;
+
 		}
 
 		private function onKeyDown(e:KeyboardEvent):void
@@ -41,30 +50,29 @@ package controllers
 			switch (e.keyCode)
 			{
 				case  Keyboard.UP:
-					if (e.shiftKey)
-						_view.camera.moveForward(step);
-					else
-						_view.camera.moveUp(step);
+					cameraMoveForword(step);
 					break;
 				case Keyboard.DOWN:
-					if (e.shiftKey)
-						_view.camera.moveBackward(step);
-					else
-						_view.camera.moveDown(step);
+					cameraMoveForword(-step);
 					break;
 				case Keyboard.LEFT:
 					if (e.shiftKey)
-						_view.camera.moveLeft(step);
+						camera.moveLeft(step);
 					else
-						_view.camera.yaw(step / 2);
+						cameraYaw(step / 2)
 					break;
 				case Keyboard.RIGHT:
 					if (e.shiftKey)
-						_view.camera.moveRight(step);
+						camera.moveRight(step);
 					else
-						_view.camera.yaw(-step / 2);
+						cameraYaw(-step / 2);
 					break;
 			}
+		}
+
+		private function onMouseWheel(e:MouseEvent):void
+		{
+			camera.moveForward(e.delta * 10);
 		}
 	}
 }

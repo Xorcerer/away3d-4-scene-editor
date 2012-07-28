@@ -24,6 +24,7 @@ package parsers
 		{
 			backgroundColor = 0x0;
 			antiAlias = 4;
+			camera.pitch(45);
 		}
 
 		public function load(sceneName:String):void
@@ -32,6 +33,7 @@ package parsers
 			addListeners(loader);
 
 			loader.load(new URLRequest(Res.getPath(getSceneFilename(sceneName))));
+			scene.addChild(loader);
 		}
 
 		private static function getSceneFilename(sceneName:String):String
@@ -55,7 +57,6 @@ package parsers
 		{
 			var loader:Loader3D = e.currentTarget as Loader3D;
 			removeListeners(loader);
-			scene.addChild(loader);
 		}
 
 		private function onLoadError(e:LoaderEvent):void
