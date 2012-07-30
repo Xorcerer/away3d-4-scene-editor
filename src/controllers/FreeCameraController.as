@@ -31,18 +31,21 @@ package controllers
 		public function FreeCameraController(view:View3D)
 		{
 			super(view);
+			initCamera();
+			_view.parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			_view.parent.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+			_view.parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			_view.parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+		}
 
+		private function initCamera():void
+		{
 			camera.y = CAMERA_DEFAULT_HEIGHT;
 			camera.x = 0;
 			camera.z = 0;
 			camera.lookAt(new Vector3D());
 			camera.pitch(CAMERA_FIXED_ANGLE);
 			camera.lens.far += CAMERA_DEFAULT_HEIGHT * 2;
-
-			_view.parent.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-			_view.parent.stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
-			_view.parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-			_view.parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		}
 
 		private function cameraMoveForward(step:Number):void
@@ -88,9 +91,11 @@ package controllers
 			}
 		}
 
+		private static const KEYBOARD_MOVE_FACTOR:Number = 10;
+
 		private function onMouseWheel(e:MouseEvent):void
 		{
-			camera.moveForward(e.delta * 10);
+			camera.moveForward(e.delta * KEYBOARD_MOVE_FACTOR);
 		}
 
 		private function onMouseDown(e:MouseEvent):void
