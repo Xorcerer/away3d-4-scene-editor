@@ -13,12 +13,15 @@ package parsers
 	import away3d.loaders.parsers.ParserBase;
 	import away3d.materials.DefaultMaterialBase;
 
+	import flash.geom.Point;
+
 	import flash.geom.Vector3D;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
 
 	import utils.Log;
+	import utils.RoadPoint;
 
 	use namespace arcane;
 
@@ -46,11 +49,11 @@ package parsers
 
 		private var _meshNodes:XMLList;
 
-		private var _index:int = 0;
+		private var _indexOfMeshNodes:int = 0;
 
 		protected override function proceedParsing() : Boolean
 		{
-			if (_meshNodes && _index >= _meshNodes.length())
+			if (_meshNodes && _indexOfMeshNodes >= _meshNodes.length())
 			{
 				finalizeAsset(_mesh);
 				return PARSING_DONE;
@@ -64,19 +67,27 @@ package parsers
 
 				_meshNodes = sceneXML.child('mesh');
 				_xmlLoaded = true;
+
+				var roadPoints:XMLList = sceneXML.child('trigger');
+				for (var i:int = 0; i < roadPoints.length(); ++i)
+				{
+					var point:XML = roadPoints[i];
+					var rp:RoadPoint = new RoadPoint(new Point(point.@x, point.@z));
+					_mesh.addChild(rp);
+				}
 			}
 
-			while (_index < _meshNodes.length())
+			while (_indexOfMeshNodes < _meshNodes.length())
 			{
-				var node:XML = _meshNodes[_index];
+				var node:XML = _meshNodes[_indexOfMeshNodes];
 				var meshName:String = node.@name;
 				var worldPosition:Vector3D = new Vector3D(node.pos.@x, node.pos.@y, node.pos.@z);
 
-				var key:String = 'node-' + _index + '-' + meshName;
+				var key:String = 'node-' + _indexOfMeshNodes + '-' + meshName;
 				_subMeshPositions[key] = worldPosition;
 				addDependency(key, new URLRequest(meshName + '.3ds'));
 
-				++_index;
+				++_indexOfMeshNodes;
 				if (!hasTime())
 					return MORE_TO_PARSE;
 			}
