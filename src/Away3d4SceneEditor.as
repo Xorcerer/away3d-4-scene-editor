@@ -23,13 +23,12 @@ package
 		{
 			globalInit();
 
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
-
 			_sceneLoader = new SceneLoader();
+			_sceneLoader.load('yewai1');
 			addChild(_sceneLoader);
 
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 			stage.addEventListener(Event.RESIZE, onResize);
-			_sceneLoader.load('yewai1');
 
 			new FreeCameraController(_sceneLoader);
 		}
