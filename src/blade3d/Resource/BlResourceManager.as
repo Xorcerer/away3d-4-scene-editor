@@ -110,15 +110,15 @@ package blade3d.Resource
 //				{	// 静态模型
 //					newResource = new BlModelResource(allFileName);
 //				}
-//				else if(extName == ".dds" || extName == ".png" || extName == ".bmp" || extName == ".jpeg" || extName == ".jpg" || extName == "gif")
-//				{	// 贴图
-//					
-//				}
+				if(extName == ".dds" || extName == ".png" || extName == ".bmp" || extName == ".jpeg" || extName == ".jpg" || extName == "gif")
+				{	// 贴图
+					
+				}
 //				else if(extName = ".txt")
 //				{	// 文本
 //					
 //				}
-//				else
+				else
 				{	// 2进制数据
 					newResource = new BlBinaryResource(allFileName);
 				}

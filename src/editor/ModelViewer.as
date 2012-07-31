@@ -13,6 +13,7 @@ package editor
 	import away3d.utils.Cast;
 	
 	import blade3d.BlEngine;
+	import blade3d.Profiler.Profiler;
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -185,8 +186,9 @@ package editor
 		
 		private function onEnterFrame(e:Event):void
 		{
+			Profiler.start("ModelViewer.onEnterFrame");
+			
 			BlEngine.render();
-			_view.render();
 			
 			if(_move)
 			{
@@ -194,6 +196,11 @@ package editor
 				_camController.tiltAngle = 0.3*(stage.mouseY - _lastMouseY) + _lastTiltAngle;
 			}
 			
+			Profiler.end("ModelViewer.onEnterFrame");
+			
+			BlEngine.renderProfiler();
+			
+			Profiler.nextFrame();
 		}
 		
 		

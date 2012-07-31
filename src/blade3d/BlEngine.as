@@ -8,6 +8,8 @@ package blade3d
 	import away3d.debug.Debug;
 	
 	import blade3d.Editor.BlEditorManager;
+	import blade3d.Profiler.Profiler;
+	import blade3d.Profiler.ProfilerStats;
 	import blade3d.Resource.BlResourceManager;
 	
 	import flash.display.Sprite;
@@ -50,8 +52,11 @@ package blade3d
 			_sprite.addEventListener(Event.RESIZE, onResize);
 			onResize();
 			
-			
+			// 性能分析
 			_sprite.addChild(new AwayStats(_mainView));
+			var profilerStats : ProfilerStats = new ProfilerStats();
+			profilerStats.x = 160;
+			_sprite.addChild(profilerStats);
 		}
 		
 		static private function onInitManagerCallBack(manager:Object) : void
@@ -66,7 +71,14 @@ package blade3d
 		
 		static public function render():void
 		{
+			_mainView.render();
+		}
+		
+		static public function renderProfiler():void
+		{
 			
+			if(Profiler.isProfiler && ProfilerStats.instance)
+				ProfilerStats.instance.redraw(_mainView.time, _mainView.deltaTime);
 		}
 		
 		static private function onResize(event:Event = null):void
