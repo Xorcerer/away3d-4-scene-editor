@@ -72,7 +72,7 @@ package parsers
 				for (var i:int = 0; i < roadPoints.length(); ++i)
 				{
 					var point:XML = roadPoints[i];
-					var rp:RoadPoint = new RoadPoint(new Point(point.@x, point.@z));
+					var rp:RoadPoint = new RoadPoint(new Point(point.@x, point.@z), point.@name);
 					_mesh.addChild(rp);
 				}
 			}

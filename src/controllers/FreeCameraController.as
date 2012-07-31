@@ -24,10 +24,6 @@ package controllers
 	{
 		public var _lastPosition:Point = null;
 
-		private static const CAMERA_DEFAULT_HEIGHT:Number = 2000;
-
-		private static const CAMERA_FIXED_ANGLE:Number = -30;
-
 		public function FreeCameraController(view:View3D)
 		{
 			super(view);
@@ -37,6 +33,10 @@ package controllers
 			_view.parent.stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			_view.parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		}
+
+
+		private static const CAMERA_DEFAULT_HEIGHT:Number = 2000;
+		private static const CAMERA_FIXED_ANGLE:Number = -30;
 
 		private function initCamera():void
 		{
@@ -57,14 +57,6 @@ package controllers
 
 		}
 
-		private function cameraYaw(step:Number):void
-		{
-			const y:Number = camera.y;
-			camera.yaw(step);
-			camera.y = y;
-
-		}
-
 		private function onKeyDown(e:KeyboardEvent):void
 		{
 			const step:Number = 20;
@@ -80,22 +72,22 @@ package controllers
 					if (e.shiftKey)
 						camera.moveLeft(step);
 					else
-						cameraYaw(step / 2)
+						camera.rotate(Vector3D.Y_AXIS, step);
 					break;
 				case Keyboard.RIGHT:
 					if (e.shiftKey)
 						camera.moveRight(step);
 					else
-						cameraYaw(-step / 2);
+						camera.rotate(Vector3D.Y_AXIS, -step);
 					break;
 			}
 		}
 
-		private static const KEYBOARD_MOVE_FACTOR:Number = 10;
+		private static const MOUSE_WHEEL_MOVE_FACTOR:Number = 10;
 
 		private function onMouseWheel(e:MouseEvent):void
 		{
-			camera.moveForward(e.delta * KEYBOARD_MOVE_FACTOR);
+			camera.moveForward(e.delta * MOUSE_WHEEL_MOVE_FACTOR);
 		}
 
 		private function onMouseDown(e:MouseEvent):void
@@ -105,14 +97,17 @@ package controllers
 		}
 
 		private const MOUSE_DRAG_FACTOR:Number = 0.1;
+
 		private function onMouseMove(e:MouseEvent):void
 		{
 			if (e.buttonDown)
 			{
 				var newPosition:Point = new Point(e.localX, e.localY);
-				var diff:Point = newPosition.subtract(_lastPosition);
-				camera.x += - diff.x * MOUSE_DRAG_FACTOR * camera.y;
-				camera.z += diff.y * MOUSE_DRAG_FACTOR * camera.y;
+				var offset:Point = newPosition.subtract(_lastPosition);
+
+				camera.x += - offset.x * MOUSE_DRAG_FACTOR * camera.y;
+				camera.z += offset.y * MOUSE_DRAG_FACTOR * camera.y;
+
 				_lastPosition = newPosition;
 			}
 		}
