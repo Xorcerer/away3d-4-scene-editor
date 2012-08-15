@@ -21,7 +21,7 @@ package parsers
 	import flash.utils.Dictionary;
 
 	import utils.Log;
-	import utils.RoadPoint;
+	import marks.RoadPoint;
 
 	use namespace arcane;
 
