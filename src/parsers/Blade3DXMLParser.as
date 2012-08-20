@@ -83,7 +83,7 @@ package parsers
 				var meshName:String = node.@name;
 				var worldPosition:Vector3D = new Vector3D(node.pos.@x, node.pos.@y, node.pos.@z);
 
-				var key:String = 'node-' + _indexOfMeshNodes + '-' + meshName;
+				var key:String = uniqueName(meshName);
 				_subMeshPositions[key] = worldPosition;
 				addDependency(key, new URLRequest(meshName + '.3ds'));
 
@@ -95,6 +95,11 @@ package parsers
 			pauseAndRetrieveDependencies();
 
 			return MORE_TO_PARSE;
+		}
+
+		private function uniqueName(meshName:String):String
+		{
+			return 'node-' + _indexOfMeshNodes + '-' + meshName;
 		}
 
 		private static const LEAF_ALPHA_THRESHOLD:Number = 2.0 / 255;
